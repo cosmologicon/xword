@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<base href="../src/"></base>
+<script src="sheets.js"></script>
+<button onclick="init()">init</button>
+<button onclick="createsheet()">create spreadsheet</button>
+<button onclick="addsheet()">add sheet</button>
+<button onclick="addsheeterror()">add sheet error</button>
+<script>
+let url = "https://docs.google.com/spreadsheets/d/1tDxkOdEfsW9g2DVrHkZFH1qRhDcBRDGiQfIsQThCEnk/edit"
+
+function init() {
+	sheets.init().then(result => console.log(result))
+}
+function createsheet() {
+	sheets.createspreadsheet().then(url => console.log(url))
+}
+function addsheet() {
+	sheets.addsheet(url, {gridProperties: {rowCount: 3}}).then(id => console.log(id))
+}
+function addsheeterror() {
+	sheets.addsheet(url, {badprop: true}).then(id => console.log(id))
+}
+
+</script>

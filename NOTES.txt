@@ -1,0 +1,11 @@
+# Developer notes
+
+Tutorial:
+https://developers.google.com/sheets/api/quickstart/js
+
+Update project:
+https://console.developers.google.com/apis/credentials?project=sustained-pod-193202
+
+generate.html based on creating spreadsheets:
+https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/create
+
