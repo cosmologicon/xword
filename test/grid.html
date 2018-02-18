@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<base href="../src/"></base>
+<script src="grid.js"></script>
+<script>
+// https://farm8.staticflickr.com/7024/6741457267_b5917712b5_m.jpg
+grid = new Grid(6, 6, {minlen: 2, symmetry: null})
+grid.setblocks([[1,1], [3,1], [4,1], [4,2], [1,3], [3,3], [1,5], [3,5], [5,5]], true)
+for (let jclue = 1 ; jclue <= grid.maxclue ; ++jclue) {
+	let cell = grid.cluestarts[jclue]
+	console.log(jclue, grid.alens[cell], grid.dlens[cell])
+}
+
+
+</script>
