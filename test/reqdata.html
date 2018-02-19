@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<base href="../src/"></base>
+<script src="grid.js"></script>
+<script src="reqdata.js"></script>
+<script src="sheets.js"></script>
+<button onclick="go()">init</button>
+<script>
+grid = new Grid(6, 6, {minlen: 2, symmetry: null})
+grid.setblocks([[1,1], [3,1], [4,1], [4,2], [1,3], [3,3], [1,5], [3,5], [5,5]], true)
+let url = "https://docs.google.com/spreadsheets/d/1tDxkOdEfsW9g2DVrHkZFH1qRhDcBRDGiQfIsQThCEnk/edit"
+function go() {
+	sheets.init().then(() => {
+		let props = reqdata.sheetproperties(grid)
+		return sheets.addsheet(url, props)
+	}).then(sheetid => {
+		let reqs = reqdata.get(sheetid, grid)
+		return sheets.updatesheet(url, reqs)
+	}).then(() => console.log("done"))
+}
+
+</script>
