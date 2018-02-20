@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<meta name=viewport content="width=device-width, user-scalable=no">
+<link href='http://fonts.googleapis.com/css?family=Chela+One|Special+Elite|Boogaloo|Jolly+Lodger' rel='stylesheet' type='text/css'>
+<style type="text/css">
+body {
+	background: #66B;
+	color: white;
+	text-align: center;
+}
+canvas {
+	border: medium #449 solid;
+}
+</style>
+<script src="http://ufx.space/UFX.js"></script>
+<script src="grid.js"></script>
+<script src="reqdata.js"></script>
+<script src="sheets.js"></script>
+<script src="draw.js"></script>
+<title>xword.group - create crossword grids for collaborative solving</title>
+<canvas id=canvas></canvas>
+<script>
+"use strict"
+draw.init()
+grid = new Grid(15, 15, {minlen: 2, symmetry: "C2", editblocks: true})
+UFX.ticker.init(dt => {
+	let pstate = UFX.pointer()
+	let pos = pstate.pos
+	if (pos) pos = draw.gridpos(pos, grid)
+	let cursor = pos ? grid.getcursor(pos) : null
+	draw.draw(grid, cursor)
+	if (cursor && pstate.down) grid.applycursor(cursor)
+})
+</script>

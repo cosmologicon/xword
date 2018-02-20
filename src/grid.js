@@ -3,6 +3,8 @@
 // Options:
 // minlen: minimum word length
 // symmetry: one of null, "C2"
+// editblocks: boolean
+// editbars: boolean
 
 // Cells are numbered column-first starting at [0, 0] in the upper-left.
 // Entries are numbered as the clues are numbered in a crossword, starting at 1.
@@ -18,7 +20,7 @@ function Grid(width, height, opts) {
 	this.update()
 }
 Grid.prototype = {
-	optnames: ["minlen", "symmetry"],
+	optnames: ["minlen", "symmetry", "editblocks", "editbars"],
 	set: function (opts) {
 		for (let optname of this.optnames) {
 			if (optname in opts) {
@@ -36,6 +38,19 @@ Grid.prototype = {
 		}
 		cells.sort(this.cellsortkey)
 		return cells.filter((cell, jcell) => cells.indexOf(cell) == jcell)
+	},
+	sedges: function (edge) {
+		let edges = [edge]
+		let [[x0, y0], [x1, y1]] = edge
+		if (this.symmetry === null) {
+		} else if (this.symmetry == "C2") {
+			edges.push([
+				[this.width - 1 - x1, this.height - 1 - y1],
+				[this.width - 1 - x0, this.height - 1 - y0],
+			])
+		}
+		edges.sort(this.edgesortkey)
+		return edges.filter((edge, jedge) => edges.indexOf(edge) == jedge)
 	},
 	cellsortkey: function (cell0, cell1) {
 		let [x0, y0] = cell0, [x1, y1] = cell1
@@ -106,6 +121,26 @@ Grid.prototype = {
 			}
 		}
 		this.update()
+	},
+	getcursor: function (pos) {
+		let [x, y] = pos
+		let cell0 = null
+		if (this.editblocks && 0 < x && x < grid.width && 0 < y && y < grid.height) {
+			cell0 = [Math.floor(x), Math.floor(y)]
+		}
+		let blocks = cell0 ? grid.scells(cell0) : []
+		let value = !this.blocks[cell0]
+		let bars = []
+		return {
+			blocks: blocks,
+			bars: bars,
+			value: value,
+		}
+	},
+	applycursor: function (cursor) {
+		if (cursor.blocks.length) {
+			this.setblocks(cursor.blocks, cursor.value)
+		}
 	},
 }
 let grid = null
