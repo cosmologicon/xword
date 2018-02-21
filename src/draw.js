@@ -21,7 +21,7 @@ let draw = {
 			UFX.draw("b m 0", y, "l", grid.width, y, "s")
 		}
 		for (let x = 0 ; x <= grid.width ; ++x) {
-			UFX.draw("b m", x, "0 l", x, grid.width, "s")
+			UFX.draw("b m", x, "0 l", x, grid.height, "s")
 		}
 		// Blocks
 		for (let block in grid.blocks) {
@@ -33,6 +33,16 @@ let draw = {
 			UFX.draw("[ t", block, "fs", color, "fr 0 0 1 1 ]")
 		}
 		// Bars
+		for (let bar in grid.bars) {
+			if (cursor.bars.includes("" + bar)) continue
+			let [x0, y0, x1, y1] = bar.split(",")
+			UFX.draw("[ b m", +x1, +y1, "l", +x0+1, +y0+1, "ss #444 lw 0.1 s ]")
+		}
+		for (let bar of cursor.bars) {
+			let color = grid.bars[bar] ? "#666" : "#aaa"
+			let [[x0, y0], [x1, y1]] = bar
+			UFX.draw("[ b m", +x1, +y1, "l", +x0+1, +y0+1, "ss", color, "lw 0.1 s ]")
+		}
 		// Grid outline
 		UFX.draw("[ ss black lw 0.05 sr 0 0", grid.width, grid.height, "]")
 		// Cell numbers

@@ -3,12 +3,41 @@
 <link href='http://fonts.googleapis.com/css?family=Chela+One|Special+Elite|Boogaloo|Jolly+Lodger' rel='stylesheet' type='text/css'>
 <style type="text/css">
 body {
-	background: #66B;
-	color: white;
+	background: #447;
+	color: #eee;
+	text-shadow: 0.13em 0.13em #333;
 	text-align: center;
+	font-family: "Boogaloo";
+}
+h1 {
+	font-weight: normal;
 }
 canvas {
-	border: medium #449 solid;
+	border: medium #66c solid;
+}
+button, select {
+	font: inherit;
+	color: inherit;
+	background: rgba(0,0,255,0.2);
+	border-color: blue;
+}
+button:disabled {
+	color: #777;
+}
+option {
+	background: #005;
+}
+input {
+	text-align: center;
+	font: inherit;
+	color: inherit;
+	background: rgba(255,255,255,0.2);
+	border-color: white;
+	border-width: 0.01em;
+}
+.opt {
+	margin-left: 0.6em;
+	margin-right: 0.6em;
 }
 </style>
 <script src="http://ufx.space/UFX.js"></script>
@@ -17,17 +46,95 @@ canvas {
 <script src="sheets.js"></script>
 <script src="draw.js"></script>
 <title>xword.group - create crossword grids for collaborative solving</title>
+<h1>xword&middot;group</h1>
+<div id=setsize>
+<p>Create a crossword grid layout in Google Sheets for collaborative solving
+<p>Choose grid size:
+<button onclick="choosegrid(15,15)">15x15</button>
+<button onclick="choosegrid(21,21)">21x21</button>
+<label>or custom:</label>
+<input id=customwidth placeholder=width style="width:2.4em" onchange="changecustom()"></input>
+x
+<input id=customheight placeholder=height style="width:2.4em" onchange="changecustom()"></input>
+<button id=choosecustom disabled onclick="choosecustomgrid()">??x??</button>
+</div>
+<div id=opts style="display:none">
+<p>
+<span class=opt>
+<label for=symmetry>Symmetry:</label>
+<select id=symmetry onchange="setgridopts()">
+<option value=none>none</option>
+<option value=C2 selected>180&deg; rotational</option>
+</select>
+</span>
+<span class=opt>
+<label for=editing>Editing:</label>
+<select id=editing onchange="setgridopts()">
+<option selected>blocks
+<option>bars
+<option>blocks &amp; bars
+</select>
+</span>
+<span class=opt>
+<label for=minlen>Minimum answer length:</label>
+<select id=minlen onchange="setgridopts()">
+<option>1</option>
+<option selected>2</option>
+<option>3</option>
+</select>
+</span>
+</div>
+<div id=canvasholder style="display:none">
 <canvas id=canvas></canvas>
+</div>
 <script>
 "use strict"
-draw.init()
-grid = new Grid(15, 15, {minlen: 2, symmetry: "C2", editblocks: true})
-UFX.ticker.init(dt => {
-	let pstate = UFX.pointer()
-	let pos = pstate.pos
-	if (pos) pos = draw.gridpos(pos, grid)
-	let cursor = pos ? grid.getcursor(pos) : null
-	draw.draw(grid, cursor)
-	if (cursor && pstate.down) grid.applycursor(cursor)
-})
+let elements = {}
+for (let obj of document.querySelectorAll("*")) elements[obj.id] = obj
+function changecustom() {
+	elements.choosecustom.disabled = false
+	let w = Math.floor(Number(elements.customwidth.value))
+	if (!(0 < w && w < 52)) {
+		elements.choosecustom.disabled = true
+		w = "??"
+	}
+	let h = Math.floor(Number(elements.customheight.value))
+	if (!(0 < h && h < 52)) {
+		elements.choosecustom.disabled = true
+		h = "??"
+	}
+	elements.choosecustom.innerText = w + "x" + h		
+}
+function choosecustomgrid() {
+	let [w, h] = elements.choosecustom.innerText.split("x")
+	choosegrid(Number(w), Number(h))
+}
+function choosegrid(w, h) {
+	if (grid) return
+	console.log(grid)
+	grid = new Grid(w, h)
+	console.log(grid)
+	setgridopts()
+	elements.setsize.style.display = "none"
+	elements.opts.style.display = "block"
+	elements.canvasholder.style.display = "block"
+	draw.init()
+	UFX.ticker.init(dt => {
+		let pstate = UFX.pointer()
+		let pos = pstate.pos
+		if (pos) pos = draw.gridpos(pos, grid)
+		let cursor = pos ? grid.getcursor(pos) : null
+		draw.draw(grid, cursor)
+		if (cursor && pstate.down) grid.applycursor(cursor)
+	})	
+}
+function setgridopts() {
+	grid.set({
+		symmetry: elements.symmetry.value,
+		minlen: Number(elements.minlen.value),
+		editblocks: elements.editing.value.includes("blocks"),
+		editbars: elements.editing.value.includes("bars"),
+	})
+}
+
 </script>

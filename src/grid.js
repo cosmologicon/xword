@@ -14,10 +14,9 @@
 function Grid(width, height, opts) {
 	this.width = width
 	this.height = height
-	this.set(opts || {})
 	this.blocks = {}
 	this.bars = {}
-	this.update()
+	this.set(opts || {})
 }
 Grid.prototype = {
 	optnames: ["minlen", "symmetry", "editblocks", "editbars"],
@@ -27,6 +26,7 @@ Grid.prototype = {
 				this[optname] = opts[optname]
 			}
 		}
+		this.update()
 	},
 	// All cells in the set of symmetric cells for the given cell.
 	scells: function (cell) {
@@ -56,6 +56,9 @@ Grid.prototype = {
 		let [x0, y0] = cell0, [x1, y1] = cell1
 		return y0 == y1 ? x0 - x1 : y0 - y1
 	},
+	edgesortkey: function (edge0, edge1) {
+		return grid.cellsortkey(edge0[0], edge1[0]) || grid.cellsortkey(edge0[1], edge1[1])
+	},
 
 	allcells: function () {
 		let cells = []
@@ -65,6 +68,10 @@ Grid.prototype = {
 			}
 		}
 		return cells
+	},
+	ingrid: function (cell) {
+		let [x, y] = cell
+		return 0 <= x && x < this.width && 0 <= y && y < this.height
 	},
 	// Determine the locations and lengths of each clue based on the blocks and bars.
 	update: function () {
@@ -122,15 +129,50 @@ Grid.prototype = {
 		}
 		this.update()
 	},
+	setbars: function (edges, value) {
+		for (let edge of edges) {
+			if (value) {
+				this.bars[edge] = value
+			} else {
+				delete this.bars[edge]
+			}
+		}
+		this.update()
+	},
 	getcursor: function (pos) {
 		let [x, y] = pos
-		let cell0 = null
-		if (this.editblocks && 0 < x && x < grid.width && 0 < y && y < grid.height) {
+		if (!(0 < x && x < grid.width && 0 < y && y < grid.height)) {
+			return null
+		}
+		let cell0 = null, dcell = 0
+		if (this.editblocks) {
 			cell0 = [Math.floor(x), Math.floor(y)]
+			let dx = x - (cell0[0] + 0.5), dy = y - (cell0[1] + 0.5)
+			dcell = Math.sqrt(dx * dx + dy * dy)
+		}
+		let edge0 = null, dedge = 0
+		if (this.editbars) {
+			let ecell0 = [Math.floor(x), Math.floor(y)]
+			let u = x % 1 + y % 1 > 1
+			let v = x % 1 > y % 1
+			let dx = u != v ? 0 : u ? 1 : -1
+			let dy = u == v ? 0 : u ? 1 : -1
+			let ecell1 = [ecell0[0] + dx, ecell0[1] + dy]
+			if (this.ingrid(ecell1)) {
+				edge0 = [ecell0, ecell1]
+				edge0.sort(this.cellsortkey)
+				let dex = x - (ecell0[0] + 0.5 + 0.5 * dx)
+				let dey = y - (ecell0[1] + 0.5 + 0.5 * dy)
+				dedge = Math.sqrt(dex * dex + dey * dey)
+			}
+		}
+		if (cell0 && edge0) {
+			if (dedge < dcell) cell0 = null
+			else edge0 = null
 		}
 		let blocks = cell0 ? grid.scells(cell0) : []
-		let value = !this.blocks[cell0]
-		let bars = []
+		let bars = edge0 ? grid.sedges(edge0) : []
+		let value = cell0 ? !this.blocks[cell0] : !this.bars[edge0]
 		return {
 			blocks: blocks,
 			bars: bars,
@@ -140,6 +182,9 @@ Grid.prototype = {
 	applycursor: function (cursor) {
 		if (cursor.blocks.length) {
 			this.setblocks(cursor.blocks, cursor.value)
+		}
+		if (cursor.bars.length) {
+			this.setbars(cursor.bars, cursor.value)
 		}
 	},
 }
