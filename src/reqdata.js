@@ -55,6 +55,12 @@ let reqdata = {
 				fontFamily: "Consolas",
 			},
 		},
+		// Clue headers
+		header: {
+			textFormat: {
+				bold: true,
+			},
+		},
 		// Solved clues
 		solved: {
 			textFormat: {
@@ -64,6 +70,35 @@ let reqdata = {
 					blue: 0.6,
 					alpha: 1,
 				},
+			},
+		},
+		// Highlit cells
+		highlight: {
+			backgroundColor: {
+				red: 1,
+				green: 0.95,
+				blue: 0.75,
+				alpha: 1,
+			},
+		},
+		// Internal bars
+		bar: {
+			style: "SOLID_MEDIUM",
+			color: {
+				red: 0,
+				green: 0,
+				blue: 0,
+				alpha: 0,
+			},
+		},
+		// Main grid border
+		outline: {
+			style: "SOLID_THICK",
+			color: {
+				red: 0,
+				green: 0,
+				blue: 0,
+				alpha: 0,
 			},
 		},
 	},
@@ -87,7 +122,9 @@ let reqdata = {
 		return [].concat(
 			this.widthreqs(sheetid, grid),
 			[this.celldatareq(sheetid, grid)],
-			this.cluereqs(sheetid, grid)
+			this.barreqs(sheetid, grid),
+			this.cluereqs(sheetid, grid),
+			[this.outlinereq(sheetid, grid)]
 		)
 	},
 
@@ -122,8 +159,8 @@ let reqdata = {
 			req(400, 1),  // Clue itself
 			req(32, 1),  // Answer length
 			req(150, 1),  // Partial answer
-			req(80, 1),  // OneLook lookup link
-			req(80, 1),  // nutrimatic lookup link
+			req(66, 1),  // OneLook lookup link
+			req(72, 1),  // nutrimatic lookup link
 		]
 	},
 
@@ -154,6 +191,46 @@ let reqdata = {
 		}
 		return this.updatereq(sheetid, rows, this.marginleft, this.margintop)
 	},
+	barreqs: function (sheetid, grid) {
+		let reqs = []
+		for (let bar in grid.bars) {
+			if (!grid.bars[bar]) continue
+			let [x0, y0, x1, y1] = bar.split(",").map(a => +a)
+			let columnIndex = x0 + this.marginleft
+			let rowIndex = y0 + this.margintop
+			let req = {
+				range: {
+					sheetId: sheetid,
+					startRowIndex: rowIndex,
+					endRowIndex: rowIndex + 1,
+					startColumnIndex: columnIndex,
+					endColumnIndex: columnIndex + 1,
+				},
+			}
+			req[x1 == x0 ? "bottom" : "right"] = this.formats.bar
+			reqs.push({
+				updateBorders: req,
+			})
+		}
+		return reqs
+	},
+	outlinereq: function (sheetid, grid) {
+		return {
+			updateBorders: {
+				range: {
+					sheetId: sheetid,
+					startRowIndex: this.margintop,
+					endRowIndex: this.margintop + grid.height,
+					startColumnIndex: this.marginleft,
+					endColumnIndex: this.marginleft + grid.width,
+				},
+				top: this.formats.outline,
+				left: this.formats.outline,
+				bottom: this.formats.outline,
+				right: this.formats.outline,
+			},
+		}
+	},
 
 	// Requests to fill in the clue rows
 	cluereqs: function (sheetid, grid) {
@@ -166,7 +243,7 @@ let reqdata = {
 			return (fixcol ? "$" : "") + col + (fixrow ? "$" : "") + row
 		}
 		// The values and formats for a clue row
-		let cluerow = (cell0, cluenumber, answercell0, answerlen) => {
+		let cluerow = (cell0, cluenumber, answercell0, answerlen, isdown) => {
 			let [x0, y0] = cell0
 			// Cell containing the starting cell of the answer
 			let startpointer = cellname([x0 + 1, y0])
@@ -177,7 +254,9 @@ let reqdata = {
 			// Cell containing the partial answer
 			let partialpointer = cellname([x0 + 5, y0])
 			// The cells containing the answer
-			let answercells = `OFFSET(INDIRECT(${startpointer}),0,0,1,${lengthpointer})`
+			let answercells = isdown ?
+				`OFFSET(INDIRECT(${startpointer}),0,0,${lengthpointer},1)` :
+				`OFFSET(INDIRECT(${startpointer}),0,0,1,${lengthpointer})`
 			let partialformula = `=CONCATENATE(ARRAYFORMULA(IF(${answercells}="","?",${answercells})))`
 			let [ax, ay] = answercell0
 			answercell0 = [ax + this.marginleft, ay + this.margintop]
@@ -238,7 +317,7 @@ let reqdata = {
 		}
 		// The formatting rule that fades solved clues
 		let formatreq = (x0, y0) => {
-			let condition = `=NOT(ISTEXT(REGEXEXTRACT(${cellname([x0 + 5, y0])},"\\\?")))`
+			let condition = `=NOT(ISTEXT(REGEXEXTRACT(${cellname([x0 + 5, y0], true)},"\\\?")))`
 			return {
 				addConditionalFormatRule: {
 					rule: {
@@ -266,6 +345,8 @@ let reqdata = {
 		let x = this.marginleft + grid.width + this.margincenter
 		let y = this.margintop
 		let formatreqs = []
+		// The spreadsheet rows of the clues that pertain to every cell.
+		let acellclue = {}, dcellclue = {}
 		// Build across clue content
 		let acluestart = y
 		y += 1
@@ -273,8 +354,11 @@ let reqdata = {
 		for (let jclue = 1 ; grid.cluestarts[jclue] ; ++jclue) {
 			let cstart = grid.cluestarts[jclue]
 			if (!grid.astarts[cstart]) continue  // Down only
-			arows.push(cluerow([x, y], jclue + "A", cstart, grid.alens[cstart]))
+			arows.push(cluerow([x, y], jclue + "A", cstart, grid.alens[cstart], false))
 			formatreqs.push(formatreq(x, y))
+			for (let j = 0 ; j < grid.alens[cstart] ; ++j) {
+				acellclue[[cstart[0] + j, cstart[1]]] = y
+			}
 			y += 1
 		}
 		// Build down clue content
@@ -284,14 +368,58 @@ let reqdata = {
 		for (let jclue = 1 ; grid.cluestarts[jclue] ; ++jclue) {
 			let cstart = grid.cluestarts[jclue]
 			if (!grid.dstarts[cstart]) continue  // Across only
-			drows.push(cluerow([x, y], jclue + "D", cstart, grid.dlens[cstart]))
+			drows.push(cluerow([x, y], jclue + "D", cstart, grid.dlens[cstart], true))
 			formatreqs.push(formatreq(x, y))
+			for (let j = 0 ; j < grid.dlens[cstart] ; ++j) {
+				dcellclue[[cstart[0], cstart[1] + j]] = y
+			}
 			y += 1
 		}
+		// Highlighting format rules
+		let highlightreq = (cell, ay, dy) => {
+			let acond = `NOT(ISBLANK(${cellname([x + 2, ay])}))`
+			let dcond = `NOT(ISBLANK(${cellname([x + 2, dy])}))`
+			let [cellx, celly] = cell
+			cellx += this.marginleft
+			celly += this.margintop
+			let condition = "=" + (ay && dy ? `OR(${acond},${dcond})` : ay ? acond : dcond)
+			return {
+				addConditionalFormatRule: {
+					rule: {
+						ranges: [{
+							sheetId: sheetid,
+							startRowIndex: celly,
+							endRowIndex: celly + 1,
+							startColumnIndex: cellx,
+							endColumnIndex: cellx + 1,
+						}],
+						booleanRule: {
+							condition: {
+								type: "CUSTOM_FORMULA",
+								values: [{
+									userEnteredValue: condition,
+								}],
+							},
+							format: this.formats.highlight,
+						},
+					},
+					index: 0,
+				},
+			}
+		}
+		let highlightreqs = []
+		for (let cell of grid.allcells()) {
+			let ay = acellclue[cell], dy = dcellclue[cell]
+			if (ay || dy) highlightreqs.push(highlightreq(cell, ay, dy))
+		}
+		let aheader = { values: [{ userEnteredValue: { stringValue: "ACROSS" }, userEnteredFormat: this.formats.header }]}
+		let dheader = { values: [{ userEnteredValue: { stringValue: "DOWN" }, userEnteredFormat: this.formats.header }]}
 		return [
 			this.updatereq(sheetid, arows, x, acluestart + 1),
 			this.updatereq(sheetid, drows, x, dcluestart + 1),
-		].concat(formatreqs)
+			this.updatereq(sheetid, aheader, x + 3, acluestart),
+			this.updatereq(sheetid, dheader, x + 3, dcluestart),
+		].concat(formatreqs, highlightreqs)
 	},
 }
 
