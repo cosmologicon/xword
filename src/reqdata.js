@@ -103,19 +103,21 @@ let reqdata = {
 		},
 	},
 
-	sheetproperties: function (grid) {
+	sheetproperties: function (grid, title) {
 		// 8 columns for the clues
 		let width = 8 + this.marginleft + this.margincenter + this.marginright + grid.width
 		// Extra 1 for the ACROSS/DOWN header
 		let naclues = Object.keys(grid.astarts).length + 1
 		let ndclues = Object.keys(grid.dstarts).length + 1
 		let height = Math.max(grid.height, naclues + ndclues) + this.margintop + this.marginbottom
-		return {
+		let props = {
 			gridProperties: {
 				rowCount: height,
 				columnCount: width,
 			},
 		}
+		if (title) props.title = title
+		return props
 	},
 	
 	get: function (sheetid, grid) {

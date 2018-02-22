@@ -64,7 +64,7 @@ let sheets = {
 			let req = new XMLHttpRequest()
 			req.open("GET", "api_key.txt")
 			req.onload = () => {
-				this.apikey = req.response
+				this.apikey = req.response.trim()
 				resolve()
 			}
 			req.send()
@@ -87,8 +87,9 @@ let sheets = {
 
 	// Called automatically by init.
 	_signin: function () {
+		console.log("signing in")
 		return gapi.auth2.getAuthInstance().signIn()
-			.catch(reason => { throw "Sign in failed: " + reason.error })
+			.catch(reason => { throw "Sign in failed: " + reason })
 	},
 
 	signout: function () {
@@ -153,6 +154,20 @@ let sheets = {
 		.catch(reason => {
 			throw reason.result.error.message
 		})
+	},
+
+	deletefirstsheet: function (spreadsheeturl) {
+		let id = this.getspreadsheetid(spreadsheeturl)
+		return gapi.client.sheets.spreadsheets.get({
+			spreadsheetId: id,
+		}).then(response => {
+			let sheetid = response.result.sheets[0].properties.sheetId
+			return this.updatesheet(spreadsheeturl, [{
+				deleteSheet: {
+					sheetId: sheetid,
+				},
+			}])
+		})	
 	},
 }
 
