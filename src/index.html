@@ -142,6 +142,7 @@ function setgridopts() {
 		editbars: elements.editing.value.includes("bars"),
 	})
 }
+let sheetanchor = ""
 function generate() {
 	elements.generate.disabled = true
 	elements.generate.innerText = "Signing in...."
@@ -150,6 +151,7 @@ function generate() {
 	let promise = sheets.init().then(() => {
 		elements.generate.innerText = "Generating...."
 	})
+	sheetanchor = ""
 	if (newsheet) {
 		promise = promise.then(() => sheets.createspreadsheet()).then(newurl => {
 			elements.url.value = url = newurl
@@ -160,6 +162,7 @@ function generate() {
 		let props = reqdata.sheetproperties(grid, title)
 		return sheets.addsheet(url, props)
 	}).then(sheetid => {
+		sheetanchor = sheetid
 		let reqs = reqdata.get(sheetid, grid)
 		return sheets.updatesheet(url, reqs)
 	})
@@ -178,7 +181,9 @@ function generate() {
 	})
 }
 function opensheet() {
-	window.open(elements.url.value)
+	let url = elements.url.value.split("#")[0]
+	if (sheetanchor != "") url += "#gid=" + sheetanchor
+	window.open(url)
 }
 function getoverlay() {
 	let a = document.createElement("a")
