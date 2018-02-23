@@ -92,6 +92,7 @@ x
 <input id=url placeholder=url></input>
 <button id=generate onclick="generate()">GENERATE!</button>
 <button id=open disabled onclick="opensheet()">open</button>
+<button id=getoverlay onclick="getoverlay()">download overlay</button>
 </div>
 <script>
 "use strict"
@@ -178,5 +179,11 @@ function generate() {
 }
 function opensheet() {
 	window.open(elements.url.value)
+}
+function getoverlay() {
+	let a = document.createElement("a")
+	a.href = draw.drawoverlay(grid).toDataURL()
+	a.download = "overlay.png"
+	a.click()
 }
 </script>

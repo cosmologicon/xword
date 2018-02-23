@@ -153,7 +153,7 @@ let reqdata = {
 		}
 		return [
 			req(40, this.marginleft),  // Left of the grid
-			req(22, grid.width),  // The grid itself
+			req(21, grid.width),  // The grid itself
 			req(40, this.margincenter),  // Between the grid and the clues
 			req(50, 1),  // Clue number
 			req(40, 1),  // Answer starting cell

@@ -54,6 +54,24 @@ let draw = {
 		}
 		UFX.draw("]")
 	},
+	drawoverlay: function (grid) {
+		let ocanvas = document.createElement("canvas")
+		ocanvas.width = Math.floor(22.4 * grid.width)
+		ocanvas.height = Math.floor(21 * grid.height)
+		let ocontext = ocanvas.getContext("2d")
+		UFX.draw(ocontext, "[ z", ocanvas.width / grid.width, ocanvas.height / grid.height)
+		// Grid outline
+		UFX.draw(ocontext, "ss black lw 0.05 sr 0 0", grid.width, grid.height)
+		// Cell numbers
+		for (let jclue in grid.cluestarts) {
+			UFX.draw(ocontext,
+				"[ t", grid.cluestarts[jclue], "z", 0.01, 0.01,
+				"font 38px~'sans-serif' tab left top fs black ss white lw 10 sft", jclue, 5, 5,
+				"]")
+		}
+		UFX.draw(ocontext, "]")		
+		return ocanvas
+	},
 	gridpos: function (pos, grid) {
 		let [x, y] = pos
 		let n = 2 + Math.max(grid.width, grid.height)

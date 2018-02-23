@@ -52,10 +52,7 @@ let sheets = {
 			// https://developers.google.com/sheets/api/reference/rest/v4/spreadsheets/create
 			let script = document.createElement("script")
 			script.src = "https://apis.google.com/js/api.js"
-			script.onload = () => {
-				console.log("done loadapi")
-				resolve()
-			}
+			script.onload = () => { resolve() }
 			document.head.appendChild(script);
 		})
 	},
@@ -87,7 +84,6 @@ let sheets = {
 
 	// Called automatically by init.
 	_signin: function () {
-		console.log("signing in")
 		return gapi.auth2.getAuthInstance().signIn()
 			.catch(reason => { throw "Sign in failed: " + reason })
 	},
