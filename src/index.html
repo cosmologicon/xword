@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <meta name=viewport content="width=device-width, user-scalable=no">
-<link href='http://fonts.googleapis.com/css?family=Chela+One|Special+Elite|Boogaloo|Jolly+Lodger' rel='stylesheet' type='text/css'>
+<link href='https://fonts.googleapis.com/css?family=Chela+One|Special+Elite|Boogaloo|Jolly+Lodger' rel='stylesheet' type='text/css'>
 <style type="text/css">
 body {
 	background: #447;
@@ -35,12 +35,18 @@ input {
 	border-color: white;
 	border-width: 0.01em;
 }
-.opt {
+.opt, .help {
 	margin-left: 0.6em;
 	margin-right: 0.6em;
 }
+a {
+	color: #aaf;
+}
+a:visited {
+	color: #f7f;
+}
 </style>
-<script src="http://ufx.space/UFX.js"></script>
+<script src="UFX.js"></script>
 <script src="grid.js"></script>
 <script src="reqdata.js"></script>
 <script src="sheets.js"></script>
@@ -57,6 +63,7 @@ input {
 x
 <input id=customheight placeholder=height style="width:2.4em" onchange="changecustom()"></input>
 <button id=choosecustom disabled onclick="choosecustomgrid()">??x??</button>
+<span class=help><a href="help" target="_blank">help</a></span>
 </div>
 <div id=opts style="display:none">
 <p>
@@ -82,6 +89,7 @@ x
 <option selected>2</option>
 <option>3</option>
 </select>
+<span class=help><a href="help" target="_blank">help</a></span>
 </span>
 </div>
 <div id=canvasholder style="display:none">
@@ -95,6 +103,10 @@ x
 <button id=getoverlay onclick="getoverlay()">download overlay</button>
 </div>
 <script>
+// To update:
+// curl http://ufx.space/UFX.js > /tmp/UFX.js
+// scp -r index.html *.js /tmp/UFX.js help "night@night.xen.prgmr.com:/var/www/xword"
+
 "use strict"
 let elements = {}
 for (let obj of document.querySelectorAll("*")) elements[obj.id] = obj
@@ -177,6 +189,7 @@ function generate() {
 	}).catch((error) => {
 		elements.generate.disabled = false
 		elements.generate.innerText = "GENERATE!"
+		if (!(error instanceof String)) error = JSON.stringify(error)
 		alert("Error generating grid: " + error)
 	})
 }

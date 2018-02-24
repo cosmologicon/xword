@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<meta name=viewport content="width=device-width, user-scalable=no">
+<link href='https://fonts.googleapis.com/css?family=Boogaloo' rel='stylesheet' type='text/css'>
+<style type="text/css">
+body {
+	background: #447;
+	color: #eee;
+	text-shadow: 0.13em 0.13em #333;
+	font-family: "Boogaloo";
+	max-width: 28em;
+	font-size: 130%;
+}
+* {
+	margin-left: auto;
+	margin-right: auto;
+}
+h1, h2 {
+	font-weight: normal;
+	text-align: center;
+}
+a {
+	color: #aaf;
+}
+a:visited {
+	color: #f7f;
+}
+</style>
+<title>xword.group - help/about</title>
+<h1>xword&middot;group - help/about</h1>
+<p><a href="..">xword.group</a> is a tool for generating a Google Spreadsheet version of a
+crossword puzzle you have to solve, so that you can solve it with other people collaboratively. The
+basic usage is:
+<ul>
+<li>Enter the grid at xword.group.
+<li>Generate a spreadsheet from the grid and export to your Google drive.
+<li>Manually add the clues to the same spreadsheet as the grid.
+<li>Share the spreadsheet with others.
+<li>Solve the crossword together on the spreadsheet.
+</ul>
+
+<h2>Enter the grid</h2>
+
+<p>Start with a crossword puzzle you want to solve. Maybe you found it online, or in a newspaper.
+Go to <a href="..">xword.group</a>. Choose the grid size. You'll have some options and a blank grid.
+Click on grid cells that you want to fill with blocks. The clue numbers are automatically updated to
+match the layout, so you can check that you've done it right by comparing the number of clues to the
+original.
+
+<p>The options should work for a standard American or British crossword. Some variants may require
+you to change the options, or they may not work at all. If you have a crossword variant you want
+supported, please let me know.
+
+<ul>
+<li>Symmetry: whether the grid has rotational symmetry.
+<li>Blocks or bars: blocks are entire grid cells that are blocked off. Bars are dividers between
+two adjacent cells that don't block any cell, but which words don't cross.
+<li>Minimum answer length: how many empty cells in a row are required to make a word.
+</ul>
+
+<h2>Generate the spreadsheet</h2>
+
+<p>Once the grid matches the original, pick the GENERATE button at the bottom. This will create a
+new spreadsheet and export the grid there. A box will pop up to let you know when it's done. You
+will need to sign into your Google account, and allow this site to edit your files. Also allow
+popup windows, since that's how the signin works. You can remove this access when you're done
+<a href="https://myaccount.google.com/permissions">under your Google account</a>.
+
+<p>Instead of making a new spreadsheet, you can alternately add a sheet to an existing spreadsheet.
+To do this enter the spreadsheet's URL in the box next to GENERATE.
+
+<p>Once it's done, the URL of the spreadsheet will be in the box, and the open button will take you
+to the appropriate sheet within the spreadsheet.
+
+<p>Unfortunately, Google spreadsheets do not allow is background images. This makes it hard to place
+answer numbers in the grid itself. You can place a transparent foreground image with the numbers if
+you want, but this has the disadvantage that you can't click on cells in the grid anymore, because
+they're behind the image. If you want to do this:
+
+<ol>
+<li>Click the download overlay button underneath the grid. This will download an image to your
+computer called overlay.png.
+<li>In the spreadsheet, pick the Insert menu, then Image, and upload the file you just downloaded.
+<li>Select the overlay image and position it to line up with the grid. If you hold Shift you can
+make fine adjustments with the arrow keys.
+</ol>
+
+<h2>Add the clues to the spreadsheet</h2>
+
+<p>At this point you're done with xword.group. All the rest of the work is done in the spreadsheet
+you generated.
+
+<p>The clues should go in the wide column to the right of the grid. You can type them manually, or
+if the crossword is already online, you can copy and paste them in. I recommend pasting the clues
+into a separate sheet on the spreadsheet first to make sure you get the formatting and spacing
+right, and then from there cut and paste into the wide column. When you do this, instead of Ctrl-V
+to paste, use Ctrl-Shift-V, or select the menu item Edit > Paste Special > Paste Values Only. This
+will keep the formatting that fades out clues for completed answers.
+
+<h2>Share the spreadsheet with others</h2>
+
+<p>Share as you would any other spreadsheet. Click the Share button in the upper right and add the
+people you want to solve with, or move the spreadsheet to a shared folder on Google Drive. Your
+collaborators don't need to access xword.group, just this spreadsheet.
+
+<h2>Solve the crossword together</h2>
+
+<p>Basically you just enter one letter into each grid cell. Press Tab between each letter for Across
+answers, and Enter between each letter for Down answer. Remember if you used the overlay, you can't
+click on the cells, so you'll need to use the arrow keys to get around.
+
+<p>There are a few features of the grid that can help with solving. As you enter letters into the
+grid, partial answers will get filled in on the right. When a clue's entire answer is filled in,
+that clue will fade so you can focus on the ones that still need attention.
+
+<p>The links to the right of the partial answers are for "cheating". OneLook is a popular crossword
+site that takes both the clue and the partial answer into account. nutrimatic only looks at the
+partial answer, but it has a great database of potential answers. Use these if you're stuck.
+
+<p>You can highlight answers in the grid using the narrow column just to the left of the clue. If
+you put anything in this cell, like a period, the corresponding grid cells will be highlighted in
+yellow.
+
+<h1>About</h1>
+
+<p>xword.group is by Christopher Night. Email me at cosmologicon@gmail.com
+
+<p><a href="https://github.com/cosmologicon/xword">The source code is available on Github.</a>

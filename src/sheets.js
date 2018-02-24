@@ -85,7 +85,7 @@ let sheets = {
 	// Called automatically by init.
 	_signin: function () {
 		return gapi.auth2.getAuthInstance().signIn()
-			.catch(reason => { throw "Sign in failed: " + reason })
+			.catch(reason => { throw "Sign in failed: " + (reason.error || JSON.stringify(reason)) })
 	},
 
 	signout: function () {
